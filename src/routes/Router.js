@@ -26,6 +26,7 @@ const Router = () => {
     '/cv': CV,
     '/about': AboutMe,
     '/contact': Contact,
+    '/privacy': Privacy,
   };
 
   const Component = routes[currentPath] || Home;

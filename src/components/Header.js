@@ -2,13 +2,37 @@ const { useState, useEffect } = React;
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isNearFooter, setIsNearFooter] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
+      // Check if scrolled down
       if (window.scrollY > 100) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
+      }
+
+      // Check if scrolled 30% down the page
+      const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+      if (scrollPercent > 30) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+
+      // Check if near footer
+      const footer = document.querySelector('.footer');
+      if (footer) {
+        const footerTop = footer.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        
+        if (footerTop <= windowHeight) {
+          setIsNearFooter(true);
+        } else {
+          setIsNearFooter(false);
+        }
       }
     };
 
@@ -36,10 +60,17 @@ const Header = () => {
     }
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <>
       {/* Main Header */}
-      <header className="header">
+      <header className={`header ${isScrolled ? 'header-hidden' : ''}`}>
         <div className="header-content">
           <a href="/" onClick={(e) => handleNavClick(e, '/')} className="logo">
             {/* <img src="src/img/logo/logo.png" alt="DesignByJimmi Logo" /> */}
@@ -55,8 +86,8 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Mini Navigation - vises når scrollet */}
-      <div className={`mini-nav ${isScrolled ? 'mini-nav-visible' : ''}`}>
+      {/* Mini Navigation - vises når scrollet, skjules ved footer */}
+      <div className={`mini-nav ${isScrolled && !isNearFooter ? 'mini-nav-visible' : ''}`}>
         <a href="/portfolio" onClick={(e) => handleNavClick(e, '/portfolio')} className="mini-nav-item">
           <i data-lucide="briefcase"></i>
           <span className="mini-nav-text">Portfolio</span>
@@ -74,6 +105,15 @@ const Header = () => {
           <span className="mini-nav-text">Contact</span>
         </a>
       </div>
+
+      {/* Back to Top Button */}
+      <button 
+        className={`back-to-top ${showBackToTop ? 'back-to-top-visible' : ''}`}
+        onClick={scrollToTop}
+        aria-label="Back to top"
+      >
+        <i data-lucide="arrow-up"></i>
+      </button>
     </>
   );
 };
